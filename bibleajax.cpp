@@ -148,8 +148,8 @@ int main() {
 
 			// Current chapter being displayed, default to -1 to indicate display has not started.
 			int currentChapter = -1;
-			// Loop through possible verses until the end is reached (end of desired verses or end of Bible).
-			for(int i = 0; i < request.getNumberOfVerses() && result == SUCCESS; i++) {
+			// Loop through possible verses until the end is reached (end of desired verses, end of initial book, or end of Bible).
+			for(int i = 0; i < request.getNumberOfVerses() && verse.getRef().getBook() == request.getRef().getBook() && result == SUCCESS; i++) {
 				// New chapter, print header.
 				if(verse.getRef().getChapter() != currentChapter) {
 					currentChapter = verse.getRef().getChapter();
@@ -161,11 +161,6 @@ int main() {
 
 				// Find the next ref.
 				Ref nextRef = bible.next(verse.getRef(), result);
-
-				// Don't go beyond the initial book.
-				if(nextRef.getBook() != request.getRef().getBook()) {
-					break;
-				}
 
 				// If there is another verse, look it up for the next iteration.
 				if(result == SUCCESS) {
