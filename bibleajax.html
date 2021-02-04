@@ -14,8 +14,8 @@
  --     to send the data to the server program (bibleajax.cgi)
  -- The client script then waits for the server program to finish,
  -- and return a result (via XMLHttp.onreadystatechange function).
- -- 
- -- It then takes the returned string (in XMLHttp.responseText) and 
+ --
+ -- It then takes the returned string (in XMLHttp.responseText) and
  -- displays it within the response_area element on this same web page.
  --
  -- Optional: You may also add Javascript code to preprocess recieved messages,
@@ -46,7 +46,6 @@ if(navigator.appName == "Microsoft Internet Explorer") {
 	XMLHttp = new XMLHttpRequest();
 }
 
-// TO DO: change USERNAME to your username on Linux server.
 function getresponse () {
 // check that search_type is selected
 	searchType = document.querySelector('input[name = "search_type"]:checked');
@@ -55,7 +54,7 @@ function getresponse () {
 		return;
 	}
 	// NOTE: This page must be loaded from cs.mvnu.edu to avoid a cross-origin request violation.
-	XMLHttp.open("GET", "/class/csc3004/USERNAME/cgi-bin/bibleajax.cgi?"
+	XMLHttp.open("GET", "/class/csc3004/benleskey/cgi-bin/bibleajax.cgi?"
 		+ "search_type=" + searchType.value
 		+ "&book=" + document.getElementById('book').value
 		+ "&chapter=" + document.getElementById('chapter').value

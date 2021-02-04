@@ -4,15 +4,14 @@
 # c++11 compiler option, current paths on cs.mvnu.edu
 
 # This is a Makefile for the Bible web app demo program.
-# Copy this directory to a location within your home directory. 
+# Copy this directory to a location within your home directory.
 # Change the USER name value below to your own user name.
 # Then use "make" to build the server program,
 # and deploy it to the live web server directory.
 # To test the program, go to http://cs.mvnu.edu/class/csc3004/USER/
 # and open the bibleajax.html link.
 
-# TO DO: Must replace "username" by your username
-USER= username
+USER= benleskey
 
 # Use GNU C++ compiler with C++11 standard
 CC= g++
@@ -32,7 +31,7 @@ bibleajax.o:	bibleajax.cpp
 
 # TO DO: copy targets to build classes from Project 1:
 # Bible.o, Ref.o, Verse.o
-			
+
 PutCGI:	bibleajax.cgi
 		chmod 755 bibleajax.cgi
 		cp bibleajax.cgi /var/www/html/class/csc3004/$(USER)/cgi-bin
@@ -46,5 +45,5 @@ PutHTML:
 		echo "Current contents of your HTML directory: "
 		ls -l /var/www/html/class/csc3004/$(USER)
 
-clean:		
+clean:
 		rm *.o core bibleajax.cgi
