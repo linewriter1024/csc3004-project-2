@@ -115,16 +115,18 @@ private:
 				fail("the specified " + name + " is not an integer");
 			}
 			else {
-				// Get the integer and assign it to the result.
-				result = element->getIntegerValue();
+				long value = element->getIntegerValue();
 
-				// Range check.
-				if(result < min) {
+				// Range check on original value.
+				if(value < min) {
 					fail("the specified " + name + " is below " + std::to_string(min));
 				}
-				else if(result > max) {
+				else if(value > max) {
 					fail("the specified " + name + " is above " + std::to_string(max));
 				}
+
+				// Assign (or cast) result from long value.
+				result = value;
 			}
 		}
 
