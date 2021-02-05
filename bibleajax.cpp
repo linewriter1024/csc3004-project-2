@@ -34,6 +34,14 @@ using namespace cgicc;
 
 #include "Bible.h"
 
+// Check if a string represents an integer.
+static bool stringIsInteger(std::string s) {
+	// Possible digits (and negative sign).
+	static const std::string integer_chars = "-0123456789";
+	// s is an integer if it has characters and has no character that is not a digit/negative
+	return !s.empty() && s.find_first_not_of(integer_chars) == std::string::npos;
+}
+
 // An incoming request.
 // Wraps Cgicc.
 class BibleCGIRequest {
@@ -89,37 +97,39 @@ private:
 	}
 
 	// Get an input integer of type T from an element with human-readable identifier name, pinned between min and max.
-	// Will not operate in a failed state, and will update the failed state if the element does not fit the qualifications.
+	// Will update the failed state if the element does not fit the qualifications.
+	// If the fail set is or becomes set, the return value will be invalid.
 	template<typename T>
 	T inputInteger(const form_iterator &element, std::string name, const T min, const T max) {
-		// If this request already failed, do nothing.
-		if(failed) {
-			// Return default;
-			return min;
-		}
+		// Result, default to min.
+		T result = min;
 
-		// Check if the element doesn't exist or is empty.
-		if(element == cgi.getElements().end() || element->getValue().empty()) {
-			fail("the " + name + " was not specified");
-
-			// Return default;
-			return min;
-		}
-		else {
-			// Get the integer and cast to the desired type.
-			T result = static_cast<T>(element->getIntegerValue());
-
-			// Range check.
-			if(result < min) {
-				fail("the specified " + name + " is below " + std::to_string(min));
+		// Only try anything if we've not already failed.
+		if(!failed) {
+			// Check if the element doesn't exist.
+			if(element == cgi.getElements().end()) {
+				fail("the " + name + " was not specified");
 			}
-			else if(result > max) {
-				fail("the specified " + name + " is above " + std::to_string(max));
+			// Ensure the parameter is actually an integer.
+			else if(!stringIsInteger(element->getValue())) {
+				fail("the specified " + name + " is not an integer");
 			}
+			else {
+				// Get the integer and assign it to the result.
+				result = element->getIntegerValue();
 
-			// Return the result regardless of failure.
-			return result;
+				// Range check.
+				if(result < min) {
+					fail("the specified " + name + " is below " + std::to_string(min));
+				}
+				else if(result > max) {
+					fail("the specified " + name + " is above " + std::to_string(max));
+				}
+			}
 		}
+
+		// Return result, will be invalid data if fail state set.
+		return result;
 	}
 };
 
