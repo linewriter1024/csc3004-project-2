@@ -62,13 +62,13 @@ public:
 
 		// Construct the Ref from the input.
 		ref = Ref(
-			inputInteger<Ref::book_id>(book, "book", Ref::MIN_BOOK_ID, Ref::MAX_BOOK_ID),
-			inputInteger<Ref::chapter_id>(chapter, "chapter", Ref::MIN_CHAPTER_ID, Ref::MAX_CHAPTER_ID),
-			inputInteger<Ref::verse_id>(verse, "verse", Ref::MIN_VERSE_ID, Ref::MAX_VERSE_ID)
+			inputToInteger<Ref::book_id>(book, "book", Ref::MIN_BOOK_ID, Ref::MAX_BOOK_ID),
+			inputToInteger<Ref::chapter_id>(chapter, "chapter", Ref::MIN_CHAPTER_ID, Ref::MAX_CHAPTER_ID),
+			inputToInteger<Ref::verse_id>(verse, "verse", Ref::MIN_VERSE_ID, Ref::MAX_VERSE_ID)
 		);
 
 		// Get the desired verse count.
-		numberOfVerses = inputInteger<int>(nv, "verse count", 1, std::numeric_limits<int>::max());
+		numberOfVerses = inputToInteger<int>(nv, "verse count", 1, std::numeric_limits<int>::max());
 	}
 
 	// Check if the request processing failed.
@@ -100,7 +100,7 @@ private:
 	// Will update the failed state if the element does not fit the qualifications.
 	// If the fail set is or becomes set, the return value will be invalid.
 	template<typename T>
-	T inputInteger(const form_iterator &element, std::string name, const T min, const T max) {
+	T inputToInteger(const form_iterator &element, std::string name, const T min, const T max) {
 		// Result, default to min.
 		T result = min;
 
@@ -128,7 +128,7 @@ private:
 			}
 		}
 
-		// Return result, will be invalid data if fail state set.
+		// Return result, will be invalid data if anything failed.
 		return result;
 	}
 };
