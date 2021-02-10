@@ -98,7 +98,7 @@ private:
 
 	// Get an input integer of type T from an element with human-readable identifier name, pinned between min and max.
 	// Will update the failed state if the element does not fit the qualifications.
-	// If the fail set is or becomes set, the return value will be invalid.
+	// If the fail is set or becomes set, the return value will be invalid.
 	template<typename T>
 	T inputToInteger(const form_iterator &element, std::string name, const T min, const T max) {
 		// Result, default to min.
