@@ -7,7 +7,7 @@ USER= benleskey
 
 # Deployment targets
 PutCGI= /var/www/html/class/csc3004/$(USER)/cgi-bin/bibleajax.cgi
-PUTHTML= /var/www/html/class/csc3004/$(USER)/cgi-bin/bibleajax.html
+PutHTML= /var/www/html/class/csc3004/$(USER)/bibleajax.html
 
 # Use GNU C++ compiler with C++11 standard
 CC= g++

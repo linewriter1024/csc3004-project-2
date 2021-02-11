@@ -52,6 +52,7 @@ function getresponse () {
 	// NOTE: This page must be loaded from cs.mvnu.edu to avoid a cross-origin request violation.
 	XMLHttp.open("GET", "/class/csc3004/benleskey/cgi-bin/bibleajax.cgi?"
 		+ "search_type=" + searchType.value
+		+ "&bible=" + document.getElementById('bible').value
 		+ "&book=" + document.getElementById('book').value
 		+ "&chapter=" + document.getElementById('chapter').value
 		+ "&verse=" + document.getElementById('verse').value
@@ -86,6 +87,19 @@ function getresponse () {
 
 <hr>
 <table>
+<tr>
+<td align=right valign=top>Bible Version</td>
+<td align=left valign=top>
+<select name="bible" id=bible>
+<option value="web">World English Bible
+<option value="dby">Darby Bible
+<option value="kjv">King James Version
+<option value="webster">Webster's Bible
+<option value="ylt">Young's Literal Translation
+</select>
+</td>
+</tr>
+
 <tr>
 <td align=right valign=top>Book</td>
 <td align=left valign=top>

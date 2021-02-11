@@ -69,5 +69,11 @@ class Bible {	// A class to represent a version of the bible
 
    // Show the name of the bible file on cout
    void display();
+
+   // Does a version identifier (kjv, web, etc.) exist?
+   static bool versionExists(std::string version);
+
+   // Convert an existing version identifier to a file. Will return an empty string if the version identifier is not found.
+   static std::string versionToFile(std::string version);
 };
 #endif //Bible_H

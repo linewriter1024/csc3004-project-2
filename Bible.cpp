@@ -7,9 +7,27 @@
 #include <iostream>
 #include <fstream>
 #include <string>
+#include <map>
 #include <stdio.h>
 #include <stdlib.h>
 using namespace std;
+
+// Map of Bible version short names to files.
+static std::map<std::string, std::string> bibleVersions = {
+	{"kjv", "/home/class/csc3004/Bibles/kjv-complete"},
+	{"web", "/home/class/csc3004/Bibles/web-complete"},
+	{"dby", "/home/class/csc3004/Bibles/dby-complete"},
+	{"webster", "/home/class/csc3004/Bibles/webster-complete"},
+	{"ylt", "/home/class/csc3004/Bibles/ylt-complete"},
+};
+
+bool Bible::versionExists(std::string version) {
+	return bibleVersions.count(version) > 0;
+}
+
+std::string Bible::versionToFile(std::string version) {
+	return versionExists(version) ? bibleVersions.at(version) : "";
+}
 
 Bible::Bible() { // Default constructor
 	infile = "/home/class/csc3004/Bibles/web-complete";

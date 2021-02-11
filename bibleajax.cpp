@@ -50,10 +50,14 @@ public:
 	// Will set failed state if anything went wrong.
 	BibleCGIRequest() : cgi(), failed(false), errorMessage("") {
 		// Get the CGI input data.
+		form_iterator bible = cgi.getElement("bible");
 		form_iterator book = cgi.getElement("book");
 		form_iterator chapter = cgi.getElement("chapter");
 		form_iterator verse = cgi.getElement("verse");
 		form_iterator nv = cgi.getElement("num_verse");
+
+		// Get the bible version.
+		bibleVersion = inputToBibleVersion(bible, "bible version");
 
 		// Construct the Ref from the input.
 		ref = Ref(
@@ -75,10 +79,13 @@ public:
 	Ref getRef() { return ref; }
 	// Get the desired number of verses. Only works after success.
 	int getNumberOfVerses() { return numberOfVerses; }
+	// Get the desired Bible version. Only works after success.
+	std::string getBibleVersion() { return bibleVersion; };
 private:
 	// Create the Cgicc object within the Request.
 	Cgicc cgi;
 
+	std::string bibleVersion;
 	Ref ref;
 	int numberOfVerses;
 
@@ -91,6 +98,37 @@ private:
 		errorMessage = message;
 	}
 
+	// Returns true if an element exists and is non-empty, false otherwise.
+	bool elementSpecified(const form_iterator &element) {
+		return element != cgi.getElements().end() && !element->getValue().empty();
+	}
+
+	// Get an input string representing a valid Bible version from an element with human-readable identifier name.
+	// Will update the failed state if the element does not refer to a valid version.
+	// If the fail is set or becomes set, the return value will be invalid.
+	std::string inputToBibleVersion(const form_iterator &element, std::string name) {
+		std::string result;
+
+		// Only try anything if we've not already failed.
+		if(!failed) {
+			// Check if the element is not specified.
+			if(!elementSpecified(element)) {
+				fail("the " + name + " was not specified");
+			}
+			// Ensure the bible version is valid.
+			else if(!Bible::versionExists(element->getValue())) {
+				fail("the specified " + name + " is not a recognized bible version " + element->getValue());
+			}
+			else {
+				// Valid version, set result.
+				result = element->getValue();
+			}
+		}
+
+		// Return result, will be invalid data on failure.
+		return result;
+	}
+
 	// Get an input integer of type T from an element with human-readable identifier name, pinned between min and max.
 	// Will update the failed state if the element does not fit the qualifications.
 	// If the fail is set or becomes set, the return value will be invalid.
@@ -101,8 +139,8 @@ private:
 
 		// Only try anything if we've not already failed.
 		if(!failed) {
-			// Check if the element doesn't exist, or is empty.
-			if(element == cgi.getElements().end() || element->getValue().empty()) {
+			// Check if the element is not specified.
+			if(!elementSpecified(element)) {
 				fail("the " + name + " was not specified");
 			}
 			// Ensure the parameter is actually an integer.
@@ -144,7 +182,7 @@ int main() {
 	}
 	else {
 		// Valid request, Open the Bible.
-		Bible bible("/home/class/csc3004/Bibles/web-complete");
+		Bible bible(Bible::versionToFile(request.getBibleVersion()));
 
 		// Look up the first verse.
 		LookupResult result;
