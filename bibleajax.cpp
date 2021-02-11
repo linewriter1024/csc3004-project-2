@@ -48,13 +48,8 @@ class BibleCGIRequest {
 public:
 	// Construct the request object from the CGI request data.
 	// Will set failed state if anything went wrong.
-	BibleCGIRequest() : cgi() {
-		// Clear failure.
-		failed = false;
-		errorMessage = "";
-
+	BibleCGIRequest() : cgi(), failed(false), errorMessage("") {
 		// Get the CGI input data.
-		// TODO: form_iterator st = cgi.getElement("search_type");
 		form_iterator book = cgi.getElement("book");
 		form_iterator chapter = cgi.getElement("chapter");
 		form_iterator verse = cgi.getElement("verse");
