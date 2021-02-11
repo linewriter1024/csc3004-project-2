@@ -101,8 +101,8 @@ private:
 
 		// Only try anything if we've not already failed.
 		if(!failed) {
-			// Check if the element doesn't exist.
-			if(element == cgi.getElements().end()) {
+			// Check if the element doesn't exist, or is empty.
+			if(element == cgi.getElements().end() || element->getValue().empty()) {
 				fail("the " + name + " was not specified");
 			}
 			// Ensure the parameter is actually an integer.
