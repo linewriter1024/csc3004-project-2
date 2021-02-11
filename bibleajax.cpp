@@ -159,6 +159,7 @@ int main() {
 			for(int i = 0; i < request.getNumberOfVerses() && verse.getRef().getBook() == request.getRef().getBook() && result == SUCCESS; i++) {
 				// New chapter, print header.
 				if(verse.getRef().getChapter() != currentChapter) {
+					// Update current chapter to the next.
 					currentChapter = verse.getRef().getChapter();
 					cout << "<h2>" << verse.getRef().getBookName() << " " << verse.getRef().getChapter() << "</h2>" << endl;
 				}
