@@ -132,7 +132,7 @@ private:
 
 int main() {
 	// Send the required CGI content type header.
-	// Plain text, we are only rendering part of a page.t
+	// Plain text, we are only rendering part of a page.
 	cout << "Content-Type: text/plain\n\n";
 
 	// Construct the request wrapper (it will create the Cgicc instance).
