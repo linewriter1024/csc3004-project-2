@@ -117,7 +117,7 @@ private:
 			}
 			// Ensure the bible version is valid.
 			else if(!Bible::versionExists(element->getValue())) {
-				fail("the specified " + name + " is not a recognized bible version " + element->getValue());
+				fail("the specified " + name + " is not a recognized bible version");
 			}
 			else {
 				// Valid version, set result.
