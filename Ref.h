@@ -48,12 +48,12 @@ public:
 	string getBookName();
 
 	// Comparison operators.
-	bool operator==(const Ref &);
-	bool operator<(const Ref &);
+	bool operator==(const Ref &) const;
+	bool operator<(const Ref &) const;
 	// Define != in terms of ==.
-	bool operator!=(const Ref &r) { return !(*this == r); }
+	bool operator!=(const Ref &r) const { return !(*this == r); }
 	// Define > in terms of == and <.
-	bool operator>(const Ref &r) { return !(*this == r || *this < r); }
+	bool operator>(const Ref &r) const { return !(*this == r || *this < r); }
 
 	void display(); 	// Display the reference on cout, example output: John 3:16
 };

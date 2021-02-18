@@ -55,11 +55,11 @@ Ref::chapter_id Ref::getChapter() {return chapter;}	 // Access chapterter number
 Ref::verse_id Ref::getVerse() {return verse;}; // Access verse number
 
 // Ref comparison operators.
-bool Ref::operator==(const Ref &r) {
+bool Ref::operator==(const Ref &r) const {
 	return book == r.book && chapter == r.chapter && verse == r.verse;
 }
 
-bool Ref::operator<(const Ref &r) {
+bool Ref::operator<(const Ref &r) const {
 	return book < r.book || (book == r.book && chapter < r.chapter) || (book == r.book && chapter == r.chapter && verse < r.verse);
 }
 

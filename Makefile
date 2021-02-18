@@ -14,13 +14,19 @@ CC= g++
 CFLAGS= -g -std=c++11
 
 # Default target deploys to web server.
-all: $(PutCGI) $(PutHTML)
+all: $(PutCGI) $(PutHTML) testreader
 
 bibleajax.cgi: bibleajax.o Ref.o Verse.o Bible.o
 	$(CC) $(CFLAGS) -o bibleajax.cgi bibleajax.o Ref.o Verse.o Bible.o -lcgicc
 
+testreader: testreader.o Ref.o Verse.o Bible.o
+	$(CC) $(CFLAGS) -o testreader testreader.o Ref.o Verse.o Bible.o
+
 bibleajax.o: bibleajax.cpp Ref.h Verse.h Bible.h
 	$(CC) $(CFLAGS) -c bibleajax.cpp
+
+testreader.o: testreader.cpp Ref.h Verse.h Bible.h
+	$(CC) $(CFLAGS) -c testreader.cpp
 
 Ref.o : Ref.h Ref.cpp
 	$(CC) $(CFLAGS) -c Ref.cpp
@@ -41,4 +47,4 @@ $(PutHTML): bibleajax.html
 	cp bibleajax.html $(PutHTML)
 
 clean:
-	rm -f *.o core bibleajax.cgi
+	rm -f *.o core bibleajax.cgi testreader

@@ -29,153 +29,128 @@ std::string Bible::versionToFile(std::string version) {
 	return versionExists(version) ? bibleVersions.at(version) : "";
 }
 
-Bible::Bible() { // Default constructor
-	infile = "/home/class/csc3004/Bibles/web-complete";
-	isOpen = hasScanned = hasPrevious = false;
-}
+// Default constructor, just use the WEB version.
+Bible::Bible() : Bible("/home/class/csc3004/Bibles/web-complete") {}
 
 // Constructor – pass bible filename
-Bible::Bible(const string s) {
-	infile = s;
-	isOpen = hasScanned = hasPrevious = false;
+Bible::Bible(const string s) : infile(s), isValid(false) {
+	// Open the file and build the index if possible.
+	instream.open(infile, ios::in);
+	if(instream) {
+		isValid = true;
+		buildIndex();
+	}
 }
 
-bool Bible::resetFile() {
-	// File reset, so reset scanned status.
-	hasScanned = false;
-	hasPrevious = false;
+bool Bible::valid() {
+	return isValid;
+}
 
-	if(isOpen) {
-		// The file is already open, clear state and seek to the beginning.
-		instream.clear();
-		instream.seekg(0, ios::beg);
-		return true;
+void Bible::buildIndex() {
+	std::string buffer;
+	std::streampos position;
+	do {
+		// Record position and get the next line.
+		position = instream.tellg();
+		getline(instream, buffer);
+
+		// If there's something here, parse the Ref and add it to the index.
+		if(!buffer.empty()) {
+			Ref ref(buffer);
+			index[ref] = position;
+		}
+	} while(!instream.fail());
+}
+
+LookupResult Bible::getRefLookupStatus(Ref ref) {
+	if(index.count(ref)) {
+		// Ref exists.
+		return SUCCESS;
 	}
 	else {
-		// The file is not yet open, try opening it.
-		instream.open(infile, ios::in);
-		if(instream) {
-			// File opened.
-			isOpen = true;
-			// Include whitespace in operations.
-			instream.unsetf(ios::skipws);
-			return true;
-		}
-		else {
-			// Couldn't open. Log the error.
-			cerr << "Error opening Bible file " << infile << endl;
-			return false;
-		}
-	}
-}
-
-bool Bible::scanNext() {
-	// Read the next line from the file.
-	string buffer;
-	getline(instream, buffer);
-
-	// Check if we got something.
-	bool ok = !instream.fail() && !buffer.empty();
-	if(ok) {
-		// We have a result.
-		// Preserve previous verse.
-		previousVerse = currentVerse;
-		hasPrevious = hasScanned;
-		// Update current verse.
-		currentVerse = Verse(buffer);
-		hasScanned = true;
-	}
-	return ok;
-}
-
-void Bible::scanTo(Ref ref, LookupResult& status) {
-	// Check if the file is not open or the current state is past where we are going.
-	if((!isOpen) || (hasScanned && getCurrentVerse().getRef() > ref)) {
-		// If so, reset file state.
-		if(!resetFile()) {
-			// Unable to open file, fail immediately.
-			status = OTHER;
-			return;
-		}
-	}
-
-	// If nothing has been scanned, feed in the first line.
-	if(!hasScanned) {
-		scanNext();
-	}
-
-	// Status of search on the wider parts of the Ref.
-	bool foundBook = false;
-	bool foundChapter = false;
-
-	// Scan through the remaining lines...
-	for(bool ok = hasScanned; ok; ok = scanNext()) {
-		// The Ref of the line currently being scanned.
-		Ref currentRef = getCurrentVerse().getRef();
-
-		// Update wide search statuses.
-		if(ref.getBook() == currentRef.getBook()) {
-			// Book matches our search, we found the book.
-			foundBook = true;
-			if(ref.getChapter() == currentRef.getChapter()) {
-				// Chapter also matches our search, we found it chapter too.
-				foundChapter = true;
+		/*
+		 * Ref doesn't exist, figure out why not.
+		 *
+		 * First check if the book doesn't exist,
+		 * then check if the chapter in the book doesn't exist,
+		 * and if they both exist then it's the verse that doesn't exist.
+		 */
+		Ref bookTest(ref.getBook(), Ref::MIN_CHAPTER_ID, Ref::MIN_VERSE_ID);
+		if(index.count(bookTest)) {
+			Ref chapterTest(ref.getBook(), ref.getChapter(), Ref::MIN_VERSE_ID);
+			if(index.count(chapterTest)) {
+				return NO_VERSE;
+			}
+			else {
+				return NO_CHAPTER;
 			}
 		}
-
-		// Check if this is the line we want.
-		if(ref == currentRef) {
-			// If it is, succeed immediately.
-			status = SUCCESS;
-			return;
+		else {
+			return NO_BOOK;
 		}
-	}
-
-	// Stopped scanning with nothing found, declare appropriate status by going down hierarchy of possibilities.
-	if(!foundBook) {
-		status = NO_BOOK;
-	}
-	else if(!foundChapter) {
-		status = NO_CHAPTER;
-	}
-	else {
-		status = NO_VERSE;
 	}
 }
 
 const Verse Bible::lookup(Ref ref, LookupResult& status) {
-	// Perform the scan and update status.
-	scanTo(ref, status);
-	// If verse found, return it, otherwise return a dummy verse.
-	return status == SUCCESS ? getCurrentVerse() : Verse();
+	// Check that the ref exists in the index.
+	status = getRefLookupStatus(ref);
+	if(status == SUCCESS) {
+		// Reset and seek to the Ref's position in the file according to the index.
+		instream.clear();
+		instream.seekg(index[ref]);
+
+		// Get the verse line.
+		std::string buffer;
+		getline(instream, buffer);
+
+		// If we couldn't get anything, set failure status.
+		if(buffer.empty()) {
+			status = OTHER;
+		}
+
+		// Return the verse.
+		return Verse(buffer);
+	}
 }
 
 // Return the reference after the given ref
 const Ref Bible::next(Ref ref, LookupResult& status) {
-	scanTo(ref, status);
+	// Ensure the initial Ref exists.
+	status = getRefLookupStatus(ref);
+	if(status != SUCCESS)
+		return Ref();
 
-	if(status == SUCCESS) {
-		// With the ref found, try scanning to the next ref, setting error status if it fails.
-		if(!scanNext()) {
-			status = NO_BOOK;
-		}
+	// Get an iterator to the Ref, increment it, and if that works, return the next key Ref.
+	std::map<Ref, std::streampos>::iterator it = index.find(ref);
+	if(++it != index.end()) {
+		status = SUCCESS;
+		return it->first;
 	}
-
-	// Return verse ref if found, otherwise dummy.
-	return status == SUCCESS ? getCurrentVerse().getRef() : Ref();
+	else {
+		// No next iterator, no next book.
+		status = NO_BOOK;
+		return Ref();
+	}
 }
 
 // Return the reference before the given ref
 const Ref Bible::prev(Ref ref, LookupResult& status) {
-	scanTo(ref, status);
+	// Ensure the initial Ref exists.
+	status = getRefLookupStatus(ref);
+	if(status != SUCCESS)
+		return Ref();
 
-	// Set error status if there was no previous ref and the initial scan suceeded.
-	if(status == SUCCESS && !hasPrevious) {
-		status = NO_BOOK;
+	// Get an iterator to the Ref, decrement it, and if that works, return the prev key Ref.
+	std::map<Ref, std::streampos>::iterator it = index.find(ref);
+	if(--it != index.end()) {
+		status = SUCCESS;
+		return it->first;
 	}
-
-	// Return verse ref if found, otherwise dummy.
-	return status == SUCCESS ? getPreviousVerse().getRef() : Ref();
+	else {
+		// No next iterator, no next book.
+		status = NO_BOOK;
+		return Ref();
+	}
 }
 
 // Return an error message string to describe status

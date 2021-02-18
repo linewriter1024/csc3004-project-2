@@ -184,48 +184,53 @@ int main() {
 		// Valid request, Open the Bible.
 		Bible bible(Bible::versionToFile(request.getBibleVersion()));
 
-		// Look up the first verse.
-		LookupResult result;
-		Verse verse = bible.lookup(request.getRef(), result);
+		if(bible.valid()) {
+			// Look up the first verse.
+			LookupResult result;
+			Verse verse = bible.lookup(request.getRef(), result);
 
-		if(result == SUCCESS) {
-			// Successful lookup, continue for all verses.
+			if(result == SUCCESS) {
+				// Successful lookup, continue for all verses.
 
-			// Current chapter being displayed, default to -1 to indicate display has not started.
-			int currentChapter = -1;
-			// Loop through possible verses until the end is reached (end of desired verses, end of initial book, or end of Bible).
-			for(int i = 0; i < request.getNumberOfVerses() && verse.getRef().getBook() == request.getRef().getBook() && result == SUCCESS; i++) {
-				// New chapter, print header.
-				if(verse.getRef().getChapter() != currentChapter) {
-					// Update current chapter to the next.
-					currentChapter = verse.getRef().getChapter();
-					cout << "<h2>" << verse.getRef().getBookName() << " " << verse.getRef().getChapter() << "</h2>" << endl;
+				// Current chapter being displayed, default to -1 to indicate display has not started.
+				int currentChapter = -1;
+				// Loop through possible verses until the end is reached (end of desired verses, end of initial book, or end of Bible).
+				for(int i = 0; i < request.getNumberOfVerses() && verse.getRef().getBook() == request.getRef().getBook() && result == SUCCESS; i++) {
+					// New chapter, print header.
+					if(verse.getRef().getChapter() != currentChapter) {
+						// Update current chapter to the next.
+						currentChapter = verse.getRef().getChapter();
+						cout << "<h2>" << verse.getRef().getBookName() << " " << verse.getRef().getChapter() << "</h2>" << endl;
+					}
+
+					// Output verse.
+					cout << "<p><em>" << verse.getRef().getVerse() << ".</em> " << verse.getVerse() << "</p>" << endl;
+
+					// Find the next ref.
+					Ref nextRef = bible.next(verse.getRef(), result);
+
+					// If there is another verse, look it up for the next iteration.
+					if(result == SUCCESS) {
+						verse = bible.lookup(nextRef, result);
+					}
 				}
-
-				// Output verse.
-				cout << "<p><em>" << verse.getRef().getVerse() << ".</em> " << verse.getVerse() << "</p>" << endl;
-
-				// Find the next ref.
-				Ref nextRef = bible.next(verse.getRef(), result);
-
-				// If there is another verse, look it up for the next iteration.
-				if(result == SUCCESS) {
-					verse = bible.lookup(nextRef, result);
+			}
+			else {
+				// Failed lookup, output error message.
+				cout << "Lookup error: <em>" << bible.error(result);
+				switch(result) {
+					case NO_CHAPTER:
+						cout << " in " << request.getRef().getBookName();
+						break;
+					case NO_VERSE:
+						cout << " in " << request.getRef().getBookName() << " " << request.getRef().getChapter();
+						break;
 				}
+				cout << "</em>" << endl;
 			}
 		}
 		else {
-			// Failed lookup, output error message.
-			cout << "Lookup error: <em>" << bible.error(result);
-			switch(result) {
-				case NO_CHAPTER:
-					cout << " in " << request.getRef().getBookName();
-					break;
-				case NO_VERSE:
-					cout << " in " << request.getRef().getBookName() << " " << request.getRef().getChapter();
-					break;
-			}
-			cout << "</em>" << endl;
+			cout << "Internal error: <em>could not access the Bible</em>" << endl;
 		}
 	}
 }

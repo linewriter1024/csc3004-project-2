@@ -10,6 +10,7 @@
 
 #include "Ref.h"
 #include "Verse.h"
+#include <map>
 #include <iostream>
 #include <fstream>
 #include <string>
@@ -24,36 +25,23 @@ class Bible {	// A class to represent a version of the bible
  private:
    string infile;		// file path name
    ifstream instream;	// input stream, used when file is open
-   bool isOpen;			// true if file is open
+   bool isValid;
 
-   // Scan status variables.
-   bool hasScanned;
-   bool hasPrevious;
+   // The Ref -> position in file index.
+   std::map<Ref, std::streampos> index;
 
-   // Scan result variables.
-   Verse currentVerse;
-   Verse previousVerse;
+   // Construct the index from an open input stream.
+   void buildIndex();
 
-   // Reset or open the input file for fresh scanning, returns false if unable to open the file.
-   bool resetFile();
-
-   // Scan the input file to the supplied Ref. Sets status according to the result of the search.
-   void scanTo(Ref ref, LookupResult &status);
-
-   // Scan to the next verse. Returns true if there was a next verse, otherwise false.
-   bool scanNext();
-
-   // Get the currently scanned verse.
-   // Can only be called after a successful scanTo() or scanNext(), when hasScanned == true.
-   Verse getCurrentVerse() { return currentVerse; };
-
-   // Get the currently scanned verse.
-   // Can only be called after a successful scanTo() or scanNext() calls, when hasPrevious == true.
-   Verse getPreviousVerse() { return previousVerse; };
+   // Get the lookup status of a particular Ref in the index.
+   LookupResult getRefLookupStatus(Ref ref);
 
  public:
    Bible();	// Default constructor
    Bible(const string s); // Constructor – pass name of bible file
+
+   // Check if the Bible is valid after construction. Lookups can only be done if this is true.
+   bool valid();
 
    // Look up a verse by ref in the Bible.
    // Sets status according to the result of the search, returns a dummy verse if the lookup was unsuccessful.
