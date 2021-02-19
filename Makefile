@@ -14,7 +14,10 @@ CC= g++
 CFLAGS= -g -std=c++11
 
 # Default target deploys to web server.
-all: $(PutCGI) $(PutHTML) testreader
+# all: $(PutCGI) $(PutHTML) testreader
+
+# TODO: Replace test default with web deployment default
+all: testreader
 
 bibleajax.cgi: bibleajax.o Ref.o Verse.o Bible.o
 	$(CC) $(CFLAGS) -o bibleajax.cgi bibleajax.o Ref.o Verse.o Bible.o -lcgicc
