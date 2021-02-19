@@ -13,7 +13,7 @@ using namespace std;
 
 int main (int argc, char **argv) {
 	// Create Bible object to process the raw text file
-	Bible bible("/home/class/csc3004/Bibles/web-complete");
+	Bible bible;
 
 	if(!bible.valid()) {
 		std::cerr << "Error: invalid bible file" << endl;
