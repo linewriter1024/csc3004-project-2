@@ -152,7 +152,7 @@ const Ref Bible::prev(Ref ref, LookupResult& status) {
 		return it->first;
 	}
 	else {
-		// No next iterator, no next book.
+		// No previous iterator, no previous book.
 		status = NO_BOOK;
 		return Ref();
 	}
