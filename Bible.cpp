@@ -63,6 +63,7 @@ void Bible::buildIndex() {
 		}
 	} while(!instream.fail());
 
+	// TODO: Remove debug statements.
 	std::cerr << "Added " << index.size() << " references to the index." << endl;
 	std::cerr << "The last verse is at offset " << last_valid_position << endl;
 }
