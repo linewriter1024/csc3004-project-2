@@ -49,6 +49,7 @@ bool Bible::valid() {
 void Bible::buildIndex() {
 	std::string buffer;
 	std::streampos position;
+	std::streampos last_valid_position;
 	do {
 		// Record position and get the next line.
 		position = instream.tellg();
@@ -58,8 +59,12 @@ void Bible::buildIndex() {
 		if(!buffer.empty()) {
 			Ref ref(buffer);
 			index[ref] = position;
+			last_valid_position = position;
 		}
 	} while(!instream.fail());
+
+	std::cerr << "Added " << index.size() << " references to the index." << endl;
+	std::cerr << "The last verse is at offset " << last_valid_position << endl;
 }
 
 LookupResult Bible::getRefLookupStatus(Ref ref) {
