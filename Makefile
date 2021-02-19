@@ -11,7 +11,7 @@ PutHTML= /var/www/html/class/csc3004/$(USER)/bibleajax.html
 
 # Use GNU C++ compiler with C++11 standard
 CC= g++
-CFLAGS= -g -std=c++11
+CFLAGS= -g -std=c++11 -Werror -Wall -Og
 
 # Default target deploys to web server.
 # all: $(PutCGI) $(PutHTML) testreader

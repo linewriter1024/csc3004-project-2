@@ -90,6 +90,8 @@ int main (int argc, char **argv) {
 			case NO_VERSE:
 				cerr << " in " << ref.getBookName() << " " << c;
 				break;
+			default:
+				break;
 		}
 		cerr << endl;
 	}

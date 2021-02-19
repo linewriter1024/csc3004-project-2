@@ -116,6 +116,10 @@ const Verse Bible::lookup(Ref ref, LookupResult& status) {
 		// Return the verse.
 		return Verse(buffer);
 	}
+	else {
+		// Failed, return dummy.
+		return Verse();
+	}
 }
 
 // Return the reference after the given ref

@@ -225,6 +225,8 @@ int main() {
 					case NO_VERSE:
 						cout << " in " << request.getRef().getBookName() << " " << request.getRef().getChapter();
 						break;
+					default:
+						break;
 				}
 				cout << "</em>" << endl;
 			}
