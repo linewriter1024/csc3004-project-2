@@ -49,7 +49,7 @@ bool Bible::valid() {
 void Bible::buildIndex() {
 	std::string buffer;
 	std::streampos position;
-	std::streampos last_valid_position;
+	std::streampos last_valid_position = 0;
 	do {
 		// Record position and get the next line.
 		position = instream.tellg();
