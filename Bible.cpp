@@ -150,9 +150,10 @@ const Ref Bible::prev(Ref ref, LookupResult& status) {
 	if(status != SUCCESS)
 		return Ref();
 
-	// Get an iterator to the Ref, decrement it, and if that works, return the prev key Ref.
+	// Get an iterator to the Ref, check if it is not the first, and if so, return the prev key Ref.
 	std::map<Ref, std::streampos>::iterator it = index.find(ref);
-	if(--it != index.end()) {
+	if(it != index.begin()) {
+		--it;
 		status = SUCCESS;
 		return it->first;
 	}
