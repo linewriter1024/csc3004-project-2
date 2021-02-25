@@ -30,7 +30,7 @@ std::string Bible::versionToFile(std::string version) {
 }
 
 // Default constructor, just use the WEB version.
-Bible::Bible() : Bible("/home/class/csc3004/Bibles/web-complete") {}
+Bible::Bible() : Bible(versionToFile("web")) {}
 
 // Constructor – pass bible filename
 Bible::Bible(const string s) : infile(s), isValid(false) {
