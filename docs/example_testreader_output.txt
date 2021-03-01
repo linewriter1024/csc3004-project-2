@@ -1,0 +1,35 @@
+benleskey@centares:~/project2$ ./testreader 1 1 1 1
+Genesis 1
+ 1. In the beginning God created the heavens and the earth.
+benleskey@centares:~/project2$ ./testreader 43 3 16
+John 3
+ 16. For God so loved the world, that he gave his one and only Son, that whoever believes in him should not perish, but have eternal life.
+benleskey@centares:~/project2$ ./testreader 66 5 12
+Revelation 5
+ 12. saying with a loud voice, "Worthy is the Lamb who has been killed to receive the power, wealth, wisdom, strength, honor, glory, and blessing!"
+benleskey@centares:~/project2$ ./testreader 1 2 2 3
+Genesis 2
+ 2. On the seventh day God finished his work which he had made; and he rested on the seventh day from all his work which he had made.
+ 3. God blessed the seventh day, and made it holy, because he rested in it from all his work which he had created and made.
+ 4. This is the history of the generations of the heavens and of the earth when they were created, in the day that Yahweh God made the earth and the heavens.
+benleskey@centares:~/project2$ ./testreader 19 19 1 6
+Psalms 19
+ 1. The heavens declare the glory of God. The expanse shows his handiwork.
+ 2. Day after day they pour forth speech, and night after night they display knowledge.
+ 3. There is no speech nor language, where their voice is not heard.
+ 4. Their voice has gone out through all the earth, their words to the end of the world. In them he has set a tent for the sun,
+ 5. which is as a bridegroom coming out of his room, like a strong man rejoicing to run his course.
+ 6. His going forth is from the end of the heavens, his circuit to its ends; There is nothing hidden from its heat.
+benleskey@centares:~/project2$ ./testreader 40 5 43 10
+Matthew 5
+ 43. "You have heard that it was said, 'You shall love your neighbor, and hate your enemy.'
+ 44. But I tell you, love your enemies, bless those who curse you, do good to those who hate you, and pray for those who mistreat you and persecute you,
+ 45. that you may be children of your Father who is in heaven. For he makes his sun to rise on the evil and the good, and sends rain on the just and the unjust.
+ 46. For if you love those who love you, what reward do you have? Don't even the tax collectors do the same?
+ 47. If you only greet your friends, what more do you do than others? Don't even the tax collectors do the same?
+ 48. Therefore you shall be perfect, just as your Father in heaven is perfect.
+Matthew 6
+ 1. "Be careful that you don't do your charitable giving before men, to be seen by them, or else you have no reward from your Father who is in heaven.
+ 2. Therefore when you do merciful deeds, don't sound a trumpet before yourself, as the hypocrites do in the synagogues and in the streets, that they may get glory from men. Most certainly I tell you, they have received their reward.
+ 3. But when you do merciful deeds, don't let your left hand know what your right hand does,
+ 4. so that your merciful deeds may be in secret, then your Father who sees in secret will reward you openly.
