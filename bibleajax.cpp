@@ -24,6 +24,7 @@
 #include <limits>
 #include <stdio.h>
 #include <string.h>
+#include <sstream>
 using namespace std;
 
 /* Required libraries for AJAX to function */
@@ -33,6 +34,12 @@ using namespace std;
 using namespace cgicc;
 
 #include "Bible.h"
+#include "fifo.h"
+
+// Including the logging system.
+#define logging
+#define LOG_FILENAME "/tmp/benleskey-bibleajax.log"
+#include "logfile.h"
 
 // Check if a string represents an integer.
 static bool stringIsInteger(std::string s) {
@@ -168,7 +175,16 @@ private:
 	}
 };
 
+/* Communication pipe identifiers. */
+static const std::string pipe_id_receive = "bible_reply";
+static const std::string pipe_id_send = "bible_request";
+
 int main() {
+	// Begin logging.
+	#ifdef logging
+		logFile.open(logFilename.c_str(),ios::out);
+	#endif
+
 	// Send the required CGI content type header.
 	// Plain text, we are only rendering part of a page.
 	cout << "Content-Type: text/plain\n\n";
@@ -179,60 +195,72 @@ int main() {
 	if(request.getFailed()) {
 		// Output initial input error message upon failure.
 		cout << "<p>Input error: <em>" << request.getErrorMessage() << "</em></p>";
+		log("request itself was invalid: " + request.getErrorMessage());
 	}
 	else {
-		// Valid request, Open the Bible.
-		Bible bible(Bible::versionToFile(request.getBibleVersion()));
+		/* Open Communication */
+		Fifo pipe_receive(pipe_id_receive);
+		Fifo pipe_send(pipe_id_send);
 
-		if(bible.valid()) {
-			// Look up the first verse.
-			LookupResult result;
-			Verse verse = bible.lookup(request.getRef(), result);
+		/* Prepare for request. */
+		pipe_send.openwrite();
+		log("opened request pipe");
 
-			if(result == SUCCESS) {
-				// Successful lookup, continue for all verses.
+		/* Send request to the server with the parameters from the CGI request. */
+		std::stringstream ss;
+		ss << request.getBibleVersion() << " " << request.getRef().getBook() << ":" << request.getRef().getChapter() << ":" << request.getRef().getVerse() << " " << request.getNumberOfVerses();
+		pipe_send.send(ss.str());
 
-				// Current chapter being displayed, default to -1 to indicate display has not started.
-				int currentChapter = -1;
-				// Loop through possible verses until the end is reached (end of desired verses, end of initial book, or end of Bible).
-				for(int i = 0; i < request.getNumberOfVerses() && verse.getRef().getBook() == request.getRef().getBook() && result == SUCCESS; i++) {
-					// New chapter, print header.
-					if(verse.getRef().getChapter() != currentChapter) {
-						// Update current chapter to the next.
+		log("sending request: " + ss.str());
+
+		/* Begin reading reply. */
+		pipe_receive.openread();
+		log("opened reply pipe");
+
+		LookupResult status = OTHER; // Overall status of the request.
+		bool gotStatus = false; // Have we received the first (status) line yet?
+		int currentChapter = -1; // Current chapter being displayed, -1 means nothing yet.
+
+		// Loop through each line in the reply.
+		for(;;) {
+			// Get the next line in the reply.
+			std::string line = pipe_receive.recv();
+			if(gotStatus) {
+				// If we've already got the first (status) line, process.
+				if(line == "$end") {
+					// End means we're done.
+					log("request fulfilled");
+					break;
+				}
+				else if(status == SUCCESS) {
+					// There is a verse, get the verse from this line.
+					Verse verse(line);
+
+					// Output the chapter heading if this is a new chapter.
+					if(currentChapter != verse.getRef().getChapter()) {
 						currentChapter = verse.getRef().getChapter();
-						cout << "<h2>" << verse.getRef().getBookName() << " " << verse.getRef().getChapter() << "</h2>" << endl;
+						std::cout << "<h2>" <<  verse.getRef().getBookName() << " " << verse.getRef().getChapter() << "</h2>" << std::endl;
 					}
 
-					// Output verse.
-					cout << "<p><em>" << verse.getRef().getVerse() << ".</em> " << verse.getVerse() << "</p>" << endl;
-
-					// Find the next ref.
-					Ref nextRef = bible.next(verse.getRef(), result);
-
-					// If there is another verse, look it up for the next iteration.
-					if(result == SUCCESS) {
-						verse = bible.lookup(nextRef, result);
-					}
+					// Output the verse.
+					std::cout << "<p><em>" << verse.getRef().getVerse() << ".</em> " << verse.getVerse() << "</p>" << std::endl;
+				}
+				else {
+					// No verse, just output the error message.
+					std::cout << "Lookup error: <em>" << line << "</em>" << std::endl;
 				}
 			}
 			else {
-				// Failed lookup, output error message.
-				cout << "Lookup error: <em>" << bible.error(result);
-				switch(result) {
-					case NO_CHAPTER:
-						cout << " in " << request.getRef().getBookName();
-						break;
-					case NO_VERSE:
-						cout << " in " << request.getRef().getBookName() << " " << request.getRef().getChapter();
-						break;
-					default:
-						break;
-				}
-				cout << "</em>" << endl;
+				// This is the first line, set the status.
+				status = static_cast<LookupResult>(atoi(line.c_str()));
+				gotStatus = true;
+				log("got status line: " + line);
 			}
 		}
-		else {
-			cout << "Internal error: <em>could not access the Bible</em>" << endl;
-		}
+
+		/* Close Communication */
+		pipe_receive.fifoclose();
+		pipe_send.fifoclose();
+		log("closed pipes");
 	}
 }

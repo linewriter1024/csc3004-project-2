@@ -32,16 +32,20 @@ int main() {
 		}
 	}
 
+	/* Open communication. */
 	Fifo pipe_receive(pipe_id_receive);
 	Fifo pipe_send(pipe_id_send);
 
+	/* Begin reading requests. */
 	pipe_receive.openread();
 
 	for(;;) {
+		/* Get the next request. */
 		std::string request = pipe_receive.recv();
 
 		std::cout << "Got request: " << request << endl;
 
+		/* Split into pieces. */
 		std::string version = GetNextToken(request, " ");
 		std::string refText = GetNextToken(request, " ");
 		std::string numberofVersesText = GetNextToken(request, " ");
@@ -50,8 +54,10 @@ int main() {
 		Ref ref(refText);
 		int numberOfVerses = std::stoi(numberofVersesText);
 
+		/* Begin writing reply. */
 		pipe_send.openwrite();
 
+		/* First check for error conditions, then do the actual lookup. */
 		if(bibles.count(version) == 0) {
 			result = OTHER;
 			pipe_send.send(std::to_string(result));
@@ -63,12 +69,15 @@ int main() {
 			pipe_send.send("the specified number of verses is invalid");
 		}
 		else {
+			/* Access the appropriate bible and get the initial verse. */
 			std::shared_ptr<Bible> bible = bibles[version];
 			Verse verse = bible->lookup(ref, result);
 
+			/* Send the status immediately. */
 			pipe_send.send(std::to_string(result));
 
 			if(result == SUCCESS) {
+				/* On success, output the Ref and verse, and repeat for as many verses as were requested, going to the next verse each time, or until the end of the book is reached. */
 				for(int i = 0; i < numberOfVerses && result == SUCCESS; i++) {
 					std::stringstream ss;
 					ss << verse.getRef().getBook() << ":" << verse.getRef().getChapter() << ":" << verse.getRef().getVerse() << " " << verse.getVerse();
@@ -85,6 +94,7 @@ int main() {
 				}
 			}
 			else {
+				/* Error condition, output the message. */
 				std::stringstream ss;
 				ss << bible->error(result);
 				switch(result) {
@@ -101,6 +111,7 @@ int main() {
 			}
 		}
 
+		/* Done writing, tell the client this is the end. */
 		pipe_send.send("$end");
 		pipe_send.fifoclose();
 

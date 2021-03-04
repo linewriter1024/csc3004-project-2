@@ -31,7 +31,6 @@ Fifo::Fifo(string name){
     cout << "Error creating pipe: " << name << endl;
     return;
   }
-  cout << "Success creating pipe: " << name << endl;
   fd = 0;
   return;
 

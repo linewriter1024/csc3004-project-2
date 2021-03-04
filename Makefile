@@ -14,10 +14,7 @@ CC= g++
 CFLAGS= -g -std=c++11 -Werror -Wall -Og
 
 # Default target deploys to web server.
-# all: $(PutCGI) $(PutHTML) testreader biblelookupserver
-
-# TODO: Replace test default with web deployment default
-all: testreader biblelookupserver
+all: $(PutCGI) $(PutHTML) testreader biblelookupserver
 
 biblelookupserver: biblelookupserver.o fifo.o Ref.o Verse.o Bible.o
 	$(CC) $(CFLAGS) -o $@ $^
@@ -31,7 +28,7 @@ testreader: testreader.o Ref.o Verse.o Bible.o fifo.o
 biblelookupserver.o: biblelookupserver.cpp fifo.h Ref.h Verse.h Bible.h
 	$(CC) $(CFLAGS) -c -o $@ $<
 
-bibleajax.o: bibleajax.cpp Ref.h Verse.h Bible.h fifo.h
+bibleajax.o: bibleajax.cpp Ref.h Verse.h Bible.h fifo.h logfile.h
 	$(CC) $(CFLAGS) -c -o $@ $<
 
 testreader.o: testreader.cpp Ref.h Verse.h Bible.h fifo.h
