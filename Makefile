@@ -14,31 +14,40 @@ CC= g++
 CFLAGS= -g -std=c++11 -Werror -Wall -Og
 
 # Default target deploys to web server.
-# all: $(PutCGI) $(PutHTML) testreader
+# all: $(PutCGI) $(PutHTML) testreader biblelookupserver
 
 # TODO: Replace test default with web deployment default
-all: testreader
+all: testreader biblelookupserver
 
-bibleajax.cgi: bibleajax.o Ref.o Verse.o Bible.o
-	$(CC) $(CFLAGS) -o bibleajax.cgi bibleajax.o Ref.o Verse.o Bible.o -lcgicc
+biblelookupserver: biblelookupserver.o fifo.o Ref.o Verse.o Bible.o
+	$(CC) $(CFLAGS) -o $@ $^
 
-testreader: testreader.o Ref.o Verse.o Bible.o
-	$(CC) $(CFLAGS) -o testreader testreader.o Ref.o Verse.o Bible.o
+bibleajax.cgi: bibleajax.o Ref.o Verse.o Bible.o fifo.o
+	$(CC) $(CFLAGS) -o $@ $^ -lcgicc
 
-bibleajax.o: bibleajax.cpp Ref.h Verse.h Bible.h
-	$(CC) $(CFLAGS) -c bibleajax.cpp
+testreader: testreader.o Ref.o Verse.o Bible.o fifo.o
+	$(CC) $(CFLAGS) -o $@ $^
 
-testreader.o: testreader.cpp Ref.h Verse.h Bible.h
-	$(CC) $(CFLAGS) -c testreader.cpp
+biblelookupserver.o: biblelookupserver.cpp fifo.h Ref.h Verse.h Bible.h
+	$(CC) $(CFLAGS) -c -o $@ $<
 
-Ref.o : Ref.h Ref.cpp
-	$(CC) $(CFLAGS) -c Ref.cpp
+bibleajax.o: bibleajax.cpp Ref.h Verse.h Bible.h fifo.h
+	$(CC) $(CFLAGS) -c -o $@ $<
 
-Verse.o : Ref.h Verse.h Verse.cpp
-	$(CC) $(CFLAGS) -c Verse.cpp
+testreader.o: testreader.cpp Ref.h Verse.h Bible.h fifo.h
+	$(CC) $(CFLAGS) -c -o $@ $<
 
-Bible.o : Ref.h Verse.h Bible.h Bible.cpp
-	$(CC) $(CFLAGS) -c Bible.cpp
+fifo.o: fifo.cpp fifo.h
+	$(CC) $(CFLAGS) -c -o $@ $<
+
+Ref.o : Ref.cpp Ref.h
+	$(CC) $(CFLAGS) -c -o $@ $<
+
+Verse.o : Verse.cpp Ref.h Verse.h
+	$(CC) $(CFLAGS) -c -o $@ $<
+
+Bible.o : Bible.cpp Ref.h Verse.h Bible.h
+	$(CC) $(CFLAGS) -c -o $@ $<
 
 # Program deployment.
 $(PutCGI): bibleajax.cgi
@@ -50,4 +59,4 @@ $(PutHTML): bibleajax.html
 	cp bibleajax.html $(PutHTML)
 
 clean:
-	rm -f *.o core bibleajax.cgi testreader
+	rm -f *.o core bibleajax.cgi testreader biblelookupserver

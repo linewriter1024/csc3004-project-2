@@ -1,0 +1,22 @@
+Request Pipe Format:
+	Each request will be a string of decimal-ascii integers in the format:
+	"<version> <book>:<chapter>:<verse> <number of verses>"
+	Where the version is a single word representing the Bible version,
+	the book, chapter, and verse correspond to a Bible verse reference,
+	and number of verses is how many verses from the initial reference are desired.
+
+Reply Pipe Format:
+	Each reply will begin with:
+	"<status>"
+	Where status is a decimal-ascii integer corresponding to a LookupStatus for the initial request.
+
+	If the status is SUCCESS, then
+		Each reply will then have data in the format of repeated lines of:
+		"<book>:<chapter>:<verse> <verse text>"
+		Where the book, chapter, and verse correspond to a Bible verse reference,
+		and the verse text is an arbitrary string containing the text of the verse.
+	Otherwise
+		Each reply will have line consisting of an error message.
+
+	Each reply will end with:
+	"$end"

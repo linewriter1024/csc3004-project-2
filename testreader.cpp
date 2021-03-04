@@ -1,25 +1,19 @@
 // biblereader.cpp
 // main function for Project 1
 
-#include "Ref.h"
-#include "Verse.h"
 #include "Bible.h"
+#include "Ref.h"
+#include "fifo.h"
+
+#include <sstream>
 #include <iostream>
-#include <fstream>
-#include <string>
-#include <stdio.h>
-#include <stdlib.h>
-using namespace std;
+#include <cstdlib>
+
+/* Communication pipe identifiers. */
+static const std::string pipe_id_receive = "bible_reply";
+static const std::string pipe_id_send = "bible_request";
 
 int main (int argc, char **argv) {
-	// Create Bible object to process the raw text file
-	Bible bible;
-
-	if(!bible.valid()) {
-		std::cerr << "Error: invalid bible file" << endl;
-		return EXIT_FAILURE;
-	}
-
 	// Book, chapter, verse.
 	int b, c, v;
 	// Number of verses to fetch.
@@ -51,48 +45,44 @@ int main (int argc, char **argv) {
 		length = atoi(argv[4]);
 	}
 
-	// Create a reference from the numbers
-	Ref ref(b, c, v);
+	Fifo pipe_receive(pipe_id_receive);
+	Fifo pipe_send(pipe_id_send);
 
-	// Look up the initial reference.
-	LookupResult result;
-	Verse verse = bible.lookup(Ref(b, c, v), result);
+	pipe_send.openwrite();
 
-	if(result == SUCCESS) {
-		// Initial fetch succeeded, begin displaying verses.
+	std::stringstream ss;
+	ss << Bible::getDefaultVersion() << " " << b << ":" << c << ":" << v << " " << length;
+	pipe_send.send(ss.str());
 
-		// Current chapter being displayed, default to -1 to indicate display has not started.
-		int currentChapter = -1;
-		for(int i = 0; i < length && result == SUCCESS; i++) {
-			if(verse.getRef().getChapter() != currentChapter) {
-				currentChapter = verse.getRef().getChapter();
-				cout << verse.getRef().getBookName() << " " << verse.getRef().getChapter() << endl;
-			}
+	pipe_receive.openread();
 
-			cout << " " << verse.getRef().getVerse() << ". " << verse.getVerse() << endl;
-
-			Ref nextRef = bible.next(verse.getRef(), result);
-			if(nextRef.getBook() != ref.getBook()) {
+	LookupResult status = OTHER;
+	bool gotStatus = false;
+	int currentChapter = -1;
+	for(;;) {
+		std::string line = pipe_receive.recv();
+		if(gotStatus) {
+			if(line == "$end") {
 				break;
 			}
-			if(result == SUCCESS) {
-				verse = bible.lookup(nextRef, result);
+			else if(status == SUCCESS) {
+				Verse verse(line);
+				if(currentChapter != verse.getRef().getChapter()) {
+					currentChapter = verse.getRef().getChapter();
+					std::cout << verse.getRef().getBookName() << " " << verse.getRef().getChapter() << std::endl;
+				}
+				std::cout << " " << verse.getRef().getVerse() << ". " << verse.getVerse() << std::endl;
+			}
+			else {
+				std::cout << "Error: " << line << std::endl;
 			}
 		}
-	}
-	else {
-		// Initial fetch failed, tell the user what happened.
-		cerr << "Error: " << bible.error(result);
-		switch(result) {
-			case NO_CHAPTER:
-				cerr << " in " << ref.getBookName();
-				break;
-			case NO_VERSE:
-				cerr << " in " << ref.getBookName() << " " << c;
-				break;
-			default:
-				break;
+		else {
+			status = static_cast<LookupResult>(atoi(line.c_str()));
+			gotStatus = true;
 		}
-		cerr << endl;
 	}
+
+	pipe_receive.fifoclose();
+	pipe_send.fifoclose();
 }

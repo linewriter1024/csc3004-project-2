@@ -11,6 +11,7 @@
 #include "Ref.h"
 #include "Verse.h"
 #include <map>
+#include <list>
 #include <iostream>
 #include <fstream>
 #include <string>
@@ -53,15 +54,21 @@ class Bible {	// A class to represent a version of the bible
 
    // Information functions
    // Return an error message string to describe status
-   const string error(LookupResult status);
+   static const string error(LookupResult status);
 
    // Show the name of the bible file on cout
    void display();
+
+   // Get the default Bible version.
+   static std::string getDefaultVersion();
 
    // Does a version identifier (kjv, web, etc.) exist?
    static bool versionExists(std::string version);
 
    // Convert an existing version identifier to a file. Will return an empty string if the version identifier is not found.
    static std::string versionToFile(std::string version);
+
+   // Get a list of all available Bible versions.
+   static std::list<std::string> versionList();
 };
 #endif //Bible_H

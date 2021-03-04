@@ -21,6 +21,10 @@ static std::map<std::string, std::string> bibleVersions = {
 	{"ylt", "/home/class/csc3004/Bibles/ylt-complete"},
 };
 
+std::string Bible::getDefaultVersion() {
+	return "web";
+}
+
 bool Bible::versionExists(std::string version) {
 	return bibleVersions.count(version) > 0;
 }
@@ -29,8 +33,16 @@ std::string Bible::versionToFile(std::string version) {
 	return versionExists(version) ? bibleVersions.at(version) : "";
 }
 
-// Default constructor, just use the WEB version.
-Bible::Bible() : Bible(versionToFile("web")) {}
+std::list<std::string> Bible::versionList() {
+	std::list<std::string> result;
+	for(auto const &pair : bibleVersions) {
+		result.push_back(pair.first);
+	}
+	return result;
+}
+
+// Default constructor, just use the default version.
+Bible::Bible() : Bible(versionToFile(getDefaultVersion())) {}
 
 // Constructor – pass bible filename
 Bible::Bible(const string s) : infile(s), isValid(false) {
@@ -62,10 +74,6 @@ void Bible::buildIndex() {
 			last_valid_position = position;
 		}
 	} while(!instream.fail());
-
-	// TODO: Remove debug statements.
-	std::cerr << "Added " << index.size() << " references to the index." << endl;
-	std::cerr << "The last verse is at offset " << last_valid_position << endl;
 }
 
 LookupResult Bible::getRefLookupStatus(Ref ref) {
