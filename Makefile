@@ -28,16 +28,16 @@ testreader: testreader.o Ref.o Verse.o Bible.o fifo.o BibleLookupClient.o
 biblelookupserver.o: biblelookupserver.cpp fifo.h Ref.h Verse.h Bible.h
 	$(CC) $(CFLAGS) -c -o $@ $<
 
-bibleajax.o: bibleajax.cpp Ref.h Verse.h Bible.h fifo.h logfile.h BibleLookupClient.h
+bibleajax.o: bibleajax.cpp Ref.h Verse.h Bible.h logfile.h BibleLookupClient.h
 	$(CC) $(CFLAGS) -c -o $@ $<
 
-testreader.o: testreader.cpp Ref.h Verse.h Bible.h fifo.h BibleLookupClient.h
+testreader.o: testreader.cpp Ref.h Verse.h Bible.h BibleLookupClient.h
 	$(CC) $(CFLAGS) -c -o $@ $<
 
 fifo.o: fifo.cpp fifo.h
 	$(CC) $(CFLAGS) -c -o $@ $<
 
-BibleLookupClient.o: BibleLookupClient.cpp BibleLookupClient.h Bible.h Verse.h Ref.h
+BibleLookupClient.o: BibleLookupClient.cpp BibleLookupClient.h Bible.h Verse.h Ref.h fifo.h
 	$(CC) $(CFLAGS) -c -o $@ $<
 
 Ref.o : Ref.cpp Ref.h

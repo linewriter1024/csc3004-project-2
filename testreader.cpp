@@ -3,7 +3,6 @@
 
 #include "Bible.h"
 #include "Ref.h"
-#include "fifo.h"
 #include "BibleLookupClient.h"
 
 #include <sstream>

@@ -34,7 +34,6 @@ using namespace std;
 using namespace cgicc;
 
 #include "Bible.h"
-#include "fifo.h"
 #include "BibleLookupClient.h"
 
 // Including the logging system.
