@@ -29,11 +29,11 @@ bool Bible::versionExists(std::string version) {
 	return bibleVersions.count(version) > 0;
 }
 
-std::string Bible::versionToFile(std::string version) {
+std::string Bible::getVersionFile(std::string version) {
 	return versionExists(version) ? bibleVersions.at(version) : "";
 }
 
-std::list<std::string> Bible::versionList() {
+std::list<std::string> Bible::getVersionList() {
 	std::list<std::string> result;
 	for(auto const &pair : bibleVersions) {
 		result.push_back(pair.first);
@@ -42,7 +42,7 @@ std::list<std::string> Bible::versionList() {
 }
 
 // Default constructor, just use the default version.
-Bible::Bible() : Bible(versionToFile(getDefaultVersion())) {}
+Bible::Bible() : Bible(getVersionFile(getDefaultVersion())) {}
 
 // Constructor – pass bible filename
 Bible::Bible(const string s) : infile(s), isValid(false) {

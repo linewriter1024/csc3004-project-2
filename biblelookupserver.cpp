@@ -26,9 +26,9 @@ std::map<std::string, std::shared_ptr<Bible>> loadAllBibles() {
 	std::map<std::string, std::shared_ptr<Bible>> bibles;
 
 	/* Try all versions. */
-	for(auto version : Bible::versionList()) {
+	for(auto version : Bible::getVersionList()) {
 		std::cout << "Loading and indexing Bible version: " << version << std::endl;
-		bibles[version] = std::make_shared<Bible>(Bible::versionToFile(version));
+		bibles[version] = std::make_shared<Bible>(Bible::getVersionFile(version));
 
 		/* If the Bible was not valid, remove this version from the map. */
 		if(!bibles[version]->valid()) {
