@@ -202,7 +202,7 @@ int main() {
 		// Construct the client for requesting.
 		BibleLookupClient client(pipe_id_send, pipe_id_receive, request.getBibleVersion());
 
-		log("Initial request for: " + request.getRef().toString() + " with " + std::to_string(request.getNumberOfVerses()) + " verse(s), version " + request.getBibleVersion());
+		log("Initial request for " + request.getRef().toString() + " with " + std::to_string(request.getNumberOfVerses()) + " verse(s), version: " + request.getBibleVersion());
 
 		// Look up the first verse.
 		LookupResult result;
@@ -210,12 +210,12 @@ int main() {
 
 		if(result == SUCCESS) {
 			// Successful lookup, continue for all verses.
-			log("Initial success, proceeding...");
 
 			// Current chapter being displayed, default to -1 to indicate display has not started.
 			int currentChapter = -1;
 			// Loop through possible verses until the end is reached (end of desired verses, end of initial book, or end of Bible).
 			for(int i = 0; i < request.getNumberOfVerses() && verse.getRef().getBook() == request.getRef().getBook() && result == SUCCESS; i++) {
+				log("Got reply for " + verse.getRef().toString());
 				// New chapter, print header.
 				if(verse.getRef().getChapter() != currentChapter) {
 					// Update current chapter to the next.
@@ -232,7 +232,7 @@ int main() {
 
 				// If there is another verse, look it up for the next iteration.
 				if(result == SUCCESS) {
-					log("Next request for: " + nextRef.toString());
+					log("Got next ref, now requesting " + nextRef.toString());
 					verse = client.lookup(nextRef, result);
 				}
 				else {
