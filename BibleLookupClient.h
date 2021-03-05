@@ -7,12 +7,17 @@
 #include "Verse.h"
 #include "Ref.h"
 
+/*
+ * A client to a running bible lookup server for a specific Bible.
+ * Communicates by pipe, relaying requests and replies.
+ */
 class BibleLookupClient {
 private:
 	Fifo pipe_request;
 	Fifo pipe_reply;
 	std::string bibleVersion;
 
+	// Structure holding the generic server reply.
 	struct ServerReply {
 		// Result. Other fields are only valid if this is SUCCESS.
 		LookupResult result;
