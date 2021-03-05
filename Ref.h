@@ -47,6 +47,9 @@ public:
 	// Get human-readable name of the book.
 	string getBookName();
 
+	// Get ref as string of numbers delimited by :
+	std::string toString() const;
+
 	// Comparison operators.
 	bool operator==(const Ref &) const;
 	bool operator<(const Ref &) const;

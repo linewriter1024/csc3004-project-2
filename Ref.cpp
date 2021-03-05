@@ -4,6 +4,7 @@
 #include "Ref.h"
 #include <iostream>
 #include <string>
+#include <sstream>
 using namespace std;
 
 // GetNextToken - general routine for getting next token from a string
@@ -67,6 +68,12 @@ bool Ref::operator==(const Ref &r) const {
 
 bool Ref::operator<(const Ref &r) const {
 	return book < r.book || (book == r.book && chapter < r.chapter) || (book == r.book && chapter == r.chapter && verse < r.verse);
+}
+
+std::string Ref::toString() const {
+	std::stringstream ss;
+	ss << book << ":" << chapter << ":" << verse;
+	return ss.str();
 }
 
 void Ref::display() { 	// Display Reference

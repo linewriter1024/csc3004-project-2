@@ -19,22 +19,25 @@ all: $(PutCGI) $(PutHTML) testreader biblelookupserver
 biblelookupserver: biblelookupserver.o fifo.o Ref.o Verse.o Bible.o
 	$(CC) $(CFLAGS) -o $@ $^
 
-bibleajax.cgi: bibleajax.o Ref.o Verse.o Bible.o fifo.o
+bibleajax.cgi: bibleajax.o Ref.o Verse.o Bible.o fifo.o BibleLookupClient.o
 	$(CC) $(CFLAGS) -o $@ $^ -lcgicc
 
-testreader: testreader.o Ref.o Verse.o Bible.o fifo.o
+testreader: testreader.o Ref.o Verse.o Bible.o fifo.o BibleLookupClient.o
 	$(CC) $(CFLAGS) -o $@ $^
 
 biblelookupserver.o: biblelookupserver.cpp fifo.h Ref.h Verse.h Bible.h
 	$(CC) $(CFLAGS) -c -o $@ $<
 
-bibleajax.o: bibleajax.cpp Ref.h Verse.h Bible.h fifo.h logfile.h
+bibleajax.o: bibleajax.cpp Ref.h Verse.h Bible.h fifo.h logfile.h BibleLookupClient.h
 	$(CC) $(CFLAGS) -c -o $@ $<
 
-testreader.o: testreader.cpp Ref.h Verse.h Bible.h fifo.h
+testreader.o: testreader.cpp Ref.h Verse.h Bible.h fifo.h BibleLookupClient.h
 	$(CC) $(CFLAGS) -c -o $@ $<
 
 fifo.o: fifo.cpp fifo.h
+	$(CC) $(CFLAGS) -c -o $@ $<
+
+BibleLookupClient.o: BibleLookupClient.cpp BibleLookupClient.h Bible.h Verse.h Ref.h
 	$(CC) $(CFLAGS) -c -o $@ $<
 
 Ref.o : Ref.cpp Ref.h
