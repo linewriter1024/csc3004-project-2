@@ -202,7 +202,7 @@ int main() {
 		// Construct the client for requesting.
 		BibleLookupClient client(pipe_id_send, pipe_id_receive, request.getBibleVersion());
 
-		log("Initial request for: " + request.getRef().toString());
+		log("Initial request for: " + request.getRef().toString() + " with " + std::to_string(request.getNumberOfVerses()) + " verse(s), version " + request.getBibleVersion());
 
 		// Look up the first verse.
 		LookupResult result;
