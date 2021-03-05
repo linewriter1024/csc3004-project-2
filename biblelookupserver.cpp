@@ -12,15 +12,20 @@
 #include <iostream>
 #include <memory>
 
-/* Map of version identifiers to Bible objects. */
-static std::map<std::string, std::shared_ptr<Bible>> bibles;
-
 /* Communication pipe identifiers. */
 static const std::string pipe_id_receive = "bible_request";
 static const std::string pipe_id_send = "bible_reply";
 
-int main() {
-	/* Load all Bible versions. */
+/*
+ * Load all possible Bible versions.
+ * Returns a map of version identifiers to Bible objects.
+ *
+ * (Uses std::shared_ptr to avoid both copying Bibles and leaking memory.)
+ */
+std::map<std::string, std::shared_ptr<Bible>> loadAllBibles() {
+	std::map<std::string, std::shared_ptr<Bible>> bibles;
+
+	/* Try all versions. */
 	for(auto version : Bible::versionList()) {
 		std::cout << "Loading and indexing Bible version: " << version << std::endl;
 		bibles[version] = std::make_shared<Bible>(Bible::versionToFile(version));
@@ -32,9 +37,18 @@ int main() {
 		}
 	}
 
+	return bibles;
+}
+
+int main() {
+	/* Load all Bible versions. */
+	std::map<std::string, std::shared_ptr<Bible>> bibles = loadAllBibles();
+
 	/* Open communication. */
 	Fifo pipe_receive(pipe_id_receive);
 	Fifo pipe_send(pipe_id_send);
+
+	std::cout << "Opening pipes and waiting for requests..." << std::endl;
 
 	/* Begin reading requests. */
 	pipe_receive.openread();
@@ -43,7 +57,7 @@ int main() {
 		/* Get the next request. */
 		std::string request = pipe_receive.recv();
 
-		std::cout << "Got request: " << request << endl;
+		std::cout << "Got request: " << request << std::endl;
 
 		/* Split into pieces. */
 		std::string version = GetNextToken(request, " ");
@@ -53,6 +67,8 @@ int main() {
 		LookupResult result = OTHER;
 		Ref ref(refText);
 		int numberOfVerses = std::stoi(numberofVersesText);
+
+		std::cout << "Parsed request, now processing..." << std::endl;
 
 		/* Begin writing reply. */
 		pipe_send.openwrite();
@@ -77,24 +93,26 @@ int main() {
 			pipe_send.send(std::to_string(result));
 
 			if(result == SUCCESS) {
+				// Keep local result just for this loop.
+				LookupResult lresult = result;
 				/* On success, output the Ref and verse, and repeat for as many verses as were requested, going to the next verse each time, or until the end of the book is reached. */
-				for(int i = 0; i < numberOfVerses && result == SUCCESS; i++) {
+				for(int i = 0; i < numberOfVerses && lresult == SUCCESS; i++) {
 					std::stringstream ss;
 					ss << verse.getRef().getBook() << ":" << verse.getRef().getChapter() << ":" << verse.getRef().getVerse() << " " << verse.getVerse();
 					pipe_send.send(ss.str());
 
 					/* Go to next verse if possible and if it's in the same book. */
-					Ref nextRef = bible->next(verse.getRef(), result);
+					Ref nextRef = bible->next(verse.getRef(), lresult);
 					if(nextRef.getBook() != ref.getBook()) {
 						break;
 					}
-					if(result == SUCCESS) {
-						verse = bible->lookup(nextRef, result);
+					if(lresult == SUCCESS) {
+						verse = bible->lookup(nextRef, lresult);
 					}
 				}
 			}
 			else {
-				/* Error condition, output the message. */
+				/* Error condition, output the message with added detail. */
 				std::stringstream ss;
 				ss << bible->error(result);
 				switch(result) {

@@ -254,7 +254,7 @@ int main() {
 				// This is the first line, set the status.
 				status = static_cast<LookupResult>(atoi(line.c_str()));
 				gotStatus = true;
-				log("got status line: " + line);
+				log("got status line: " + line + ": " + Bible::error(status));
 			}
 		}
 

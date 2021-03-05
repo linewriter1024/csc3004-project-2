@@ -48,6 +48,7 @@ Bible.o : Bible.cpp Ref.h Verse.h Bible.h
 
 # Program deployment.
 $(PutCGI): bibleajax.cgi
+	rm -f $(PutCGI)
 	cp bibleajax.cgi $(PutCGI)
 	chmod 755 $(PutCGI)
 

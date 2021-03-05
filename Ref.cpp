@@ -15,6 +15,12 @@ using namespace std;
 string GetNextToken(string& str, const string& delimiters = " ") {
   // Skip delimiters at beginning
   string::size_type startPos = str.find_first_not_of(delimiters, 0);
+
+  // If there is nothing in this besides delimiters, return the empty string.
+  if(startPos == string::npos) {
+	  return "";
+  }
+
   // Find position of delimiter at end of token
   string::size_type endPos = str.find_first_of(delimiters, startPos);
 

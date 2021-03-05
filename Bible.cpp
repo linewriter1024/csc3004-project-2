@@ -60,20 +60,20 @@ bool Bible::valid() {
 
 void Bible::buildIndex() {
 	std::string buffer;
-	std::streampos position;
-	std::streampos last_valid_position = 0;
-	do {
-		// Record position and get the next line.
-		position = instream.tellg();
-		getline(instream, buffer);
 
+	// Start counting at beginning of file.
+	std::streampos position = instream.tellg();
+
+	while(getline(instream, buffer)) {
 		// If there's something here, parse the Ref and add it to the index.
 		if(!buffer.empty()) {
 			Ref ref(buffer);
 			index[ref] = position;
-			last_valid_position = position;
 		}
-	} while(!instream.fail());
+
+		// Record position for the next loop.
+		position = instream.tellg();
+	}
 }
 
 LookupResult Bible::getRefLookupStatus(Ref ref) {
