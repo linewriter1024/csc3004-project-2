@@ -1,1 +1,0 @@
-This interface has an additional feature to select from five possible Bible versions.

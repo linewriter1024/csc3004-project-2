@@ -1,3 +1,6 @@
+Extra Features:
+	This interface has an additional feature to select from five possible Bible versions.
+
 Request Pipe Format:
 	"<version> <request> <book>:<chapter>:<verse>"
 	Where version is a bible version identifier,
